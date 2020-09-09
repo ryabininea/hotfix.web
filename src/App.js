@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Redirect, Switch, Route } from 'react-router-dom';
 
 import Home from './panels/Home';
 import Place from './panels/Place';
@@ -135,6 +135,10 @@ const App = () => {
 					<Home foodAreas={FOOD_AREAS} order={order} />
 				</Route>
 				<Route path="/order/:areaId/:itemId" exact>
+
+					{Object.keys(order).length === 0 &&
+						<Redirect to="/" />
+					}
 					<Order
 						foodAreas={FOOD_AREAS}
 						order={order}

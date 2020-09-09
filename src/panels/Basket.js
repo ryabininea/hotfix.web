@@ -147,9 +147,11 @@ const Basket = ({ match: { params: { areaId, itemId }}, foodAreas, order }) => {
         </div>
       </div>
       <footer className="Place__footer">
+        {price > 0 &&
         <Link to={`/order/${area.id}/${item.id}`} className="Place__order">
           Оплатить {price}
         </Link>
+        }
       </footer>
     </div>
   );
