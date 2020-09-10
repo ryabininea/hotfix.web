@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { withRouter, Link } from 'react-router-dom';
 import accounting from 'accounting';
 
@@ -8,12 +8,14 @@ import edit from '../img/edit.svg';
 import './place.css';
 
 
-const Basket = ({ match: { params: { areaId, itemId }}, foodAreas, order }) => {
-  const [ faster, setFaster ] = useState(true);
-  const [ time, setTime ] = useState('');
-  const [ selfService, setSelfService ] = useState(false);
+const Basket = ({ match: { params: { areaId, itemId }}, foodAreas, order, orderBaskets, editBasket }) => {
+  // const [ faster, setFaster ] = useState(true);
+  // const [ time, setTime ] = useState('');
+  // const [ selfService, setSelfService ] = useState(false);
   const area = foodAreas.filter(area => area.id === areaId)[0];
   const item = area.items.filter(item => item.id === itemId)[0];
+
+  const basket = orderBaskets[item.id]
 
   const [ price, products ] = useMemo(() => {
     const foodIds = new Set((item.foods || []).map(item => item.id));
@@ -27,6 +29,8 @@ const Basket = ({ match: { params: { areaId, itemId }}, foodAreas, order }) => {
 
     const result = products.reduce((result, value) => {
         const { count, item } = value;
+
+        console.log(value)
 
         return result + parseInt(item.price) * parseInt(count);
       }, 0);
@@ -108,13 +112,13 @@ const Basket = ({ match: { params: { areaId, itemId }}, foodAreas, order }) => {
         <div className="Place__choice-item">
           <span>Как можно быстрее</span>
           <Checkbox 
-            checked={faster} 
+            checked={basket.faster} 
             onToggle={() => {
-              if (faster) {
-                setFaster(false);
+              if (basket.faster) {
+                editBasket({ id: item.id, faster: false })
               } else {
-                setTime('');
-                setFaster(true);
+                editBasket({ id: item.id, time: '' })
+                editBasket({ id: item.id, faster: true })
               }
             }}
           />
@@ -122,32 +126,33 @@ const Basket = ({ match: { params: { areaId, itemId }}, foodAreas, order }) => {
         <div className="Place__choice-item">
           <span>Назначить</span>
           <input
-            value={time}
+            type="time"
+            value={basket.time}
             onFocus={() => {
-              setFaster(false);
+              editBasket({ id: item.id, faster: false })
             }}
             onChange={event => {
-              setFaster(false);
-              setTime(event.target.value);
+              editBasket({ id: item.id, faster: false })
+              editBasket({ id: item.id, time: event.target.value });
             }}
             onBlur={() => {
-              if (time) {
-                setFaster(false);
+              if (basket.time) {
+                editBasket({ id: item.id, faster: false })
               }
             }}
           />
         </div>
         <div className="Place__choice-item">
           <h3>С собой</h3>
-          <Checkbox checked={selfService} onToggle={() => setSelfService(!selfService)} />
+          <Checkbox checked={basket.selfService} onToggle={() => editBasket({ id: item.id, selfService: !basket.selfService }) }/>
         </div>
         <div className="Place__choice-item">
           <h3>На месте</h3>
-          <Checkbox checked={!selfService} onToggle={() => setSelfService(!setSelfService)} />
+          <Checkbox checked={!basket.selfService} onToggle={() => editBasket({ id: item.id, selfService: !basket.selfService }) }/>
         </div>
       </div>
       <footer className="Place__footer">
-        {price > 0 &&
+        {parseInt(price) > 0 &&
         <Link to={`/order/${area.id}/${item.id}`} className="Place__order">
           Оплатить {price}
         </Link>
@@ -155,6 +160,10 @@ const Basket = ({ match: { params: { areaId, itemId }}, foodAreas, order }) => {
       </footer>
     </div>
   );
+};
+
+Basket.defaultProps = {
+  editBasket: () => {},
 };
 
 export default withRouter(Basket);

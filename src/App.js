@@ -126,6 +126,7 @@ const foodsMap = FOOD_AREAS.reduce((result, area) => {
 
 const App = () => {
 	const [ orderStatuses, setOrderStatuses ] = useState(JSON.parse((localStorage.getItem('orderStatuses') || 'null')) || {});
+	const [ orderBaskets, setOrderBaskets ] = useState(JSON.parse((localStorage.getItem('orderBaskets') || 'null')) || {});
 	const [ order, setOrder ] = useState(JSON.parse((localStorage.getItem('orders') || 'null')) || {});
 
 	return (
@@ -156,6 +157,38 @@ const App = () => {
 					<Basket
 						foodAreas={FOOD_AREAS}
 						order={order}
+						orderBaskets={orderBaskets}
+						editBasket={({ id, faster, selfService, time }) => {
+							const nextBaskets = {...orderBaskets};
+
+							if (faster === undefined) {
+								faster = nextBaskets[id].faster
+							}
+
+							if (selfService === undefined) {
+								selfService = nextBaskets[id].selfService
+							}
+
+							console.log(time)
+
+							if (time === undefined) {
+								time = nextBaskets[id].time
+							} else {
+								time = time.replace(/[^0-9:-]/,"")
+							}
+
+							// if(time === '') {
+							// 	faster = true
+							// }
+
+							nextBaskets[id].faster = faster;
+							nextBaskets[id].selfService = selfService;
+							nextBaskets[id].time = time;
+
+
+							setOrderBaskets(nextBaskets);
+							localStorage.setItem('orderBaskets', JSON.stringify(nextBaskets));
+						}}
 					/>
 				</Route>
 				<Route
@@ -205,6 +238,14 @@ const App = () => {
 										};
 									}
 
+									const nextBaskets = {...orderBaskets};
+
+									if (itemId in nextBaskets) {
+
+									} else {
+										nextBaskets[itemId] = {faster: true, selfService: false, time: ''};
+									}
+
 									let nextOrderStatuses = {...orderStatuses};
 
 									if (Object.keys(nextOrderStatuses).length === 0) {
@@ -225,9 +266,11 @@ const App = () => {
 									
 									localStorage.setItem('orders', serialized);
 									localStorage.setItem('orderStatuses', JSON.stringify(nextOrderStatuses));
+									localStorage.setItem('orderBaskets', JSON.stringify(nextBaskets));
 
 									setOrder(updatedOrder);
 									setOrderStatuses(nextOrderStatuses);
+									setOrderBaskets(nextBaskets);
 								}}
 								onDecrementPosition={({ id, itemId, areaId }) => {
 									const updatedOrder = {...order};
