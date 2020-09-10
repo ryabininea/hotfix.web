@@ -169,8 +169,6 @@ const App = () => {
 								selfService = nextBaskets[id].selfService
 							}
 
-							console.log(time)
-
 							if (time === undefined) {
 								time = nextBaskets[id].time
 							} else {

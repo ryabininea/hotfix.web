@@ -30,8 +30,6 @@ const Basket = ({ match: { params: { areaId, itemId }}, foodAreas, order, orderB
     const result = products.reduce((result, value) => {
         const { count, item } = value;
 
-        console.log(value)
-
         return result + parseInt(item.price) * parseInt(count);
       }, 0);
 
